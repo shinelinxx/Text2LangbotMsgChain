@@ -1,4 +1,4 @@
-# HelloPlugin
+# Text2LangbotMsgChain
 
 <!--
 ## 插件开发者详阅
