@@ -41,8 +41,8 @@
 response_text的格式请使用如下json
 ```json
 [
-  {"type": "Image", "url": "xxx"},
-  {"type": "Plain", "text": "xxx"},
+  {"type": "Image", "url": "这是一个图片url"},
+  {"type": "Plain", "text": "这是一个文本消息"},
   {"type": "WeChatAppMsg", "app_msg": "xxx"},
 ]
 ```
