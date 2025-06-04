@@ -2,6 +2,7 @@ from pkg.plugin.context import register, handler, llm_func, BasePlugin, APIHost,
 from pkg.plugin.events import *  # 导入事件类
 from pkg.platform.types import message as platform_message
 import json
+import inspect
 
 # 注册插件
 @register(name="Text2LangBotMsgChain", description="transfer text (eg. from dify) to message chain", version="0.1", author="shinelinxx")
@@ -14,6 +15,26 @@ class Text2LangBotMsgChain(BasePlugin):
     # 异步初始化
     async def initialize(self):
         pass
+
+
+    def create_message_component(self, item):
+        msg_type = item.get("type", "")
+        if not msg_type:
+            return None
+        try:
+            msg_class = getattr(platform_message, msg_type, None)
+            if not msg_class:
+                return None
+            
+            kwargs = {}
+            for key, value in item.items():
+                if key == "type":
+                    continue
+                kwargs[key] = value
+            return msg_class(**kwargs)
+        except Exception as e:
+            self.ap.logger.error(f"创建消息对象失败: {str(e)}")
+            return None
 
     @handler(NormalMessageResponded)
     async def on_normal_message_responded(self, ctx: EventContext):
@@ -30,20 +51,15 @@ class Text2LangBotMsgChain(BasePlugin):
         try:
             message_elements = []
             message_list = json.loads(response_text)
+            
             for item in message_list:
-                msg_type = item.get("type", "")
-                if msg_type == "WeChatAppMsg":
-                    message_elements.append(
-                        platform_message.WeChatAppMsg(app_msg = item.get("app_msg", "")))
-                if msg_type == "Image":
-                    message_elements.append(
-                        platform_message.Image(url = item.get("url", "")))
-                if msg_type == "Plain":
-                    message_elements.append(
-                        platform_message.Plain(text = item.get("text", "")))
-            if len(message_elements) > 0:    
+                component = self.create_message_component(item)
+                if component:
+                    message_elements.append(component)
+            
+            if message_elements:
                 await ctx.reply(platform_message.MessageChain(message_elements))
-                ctx.prevent_default()  # 阻断默认行为
+                ctx.prevent_default()
         except Exception as e:
             self.ap.logger.error(f"回复消息处理异常: {str(e)}")
     
