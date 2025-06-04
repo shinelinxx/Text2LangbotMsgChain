@@ -36,3 +36,17 @@
 ## 使用
 
 <!-- 插件开发者自行填写插件使用说明 -->
+
+
+response_text的格式请使用如下json
+```json
+[
+  {"type": "Image", "url": "xxx"},
+  {"type": "Plain", "text": "xxx"},
+  {"type": "WeChatAppMsg", "app_msg": "xxx"},
+]
+
+其中列表元素的定义请对齐message定义
+https://github.com/RockChinQ/LangBot/blob/955b391253aaab686356efecac34c222299aa829/pkg/platform/types/message.py
+
+```
