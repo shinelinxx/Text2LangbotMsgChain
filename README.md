@@ -25,28 +25,47 @@
 推荐将插件上传到 GitHub 代码仓库，以便用户通过下方方式安装。   
 欢迎[提issue](https://github.com/RockChinQ/LangBot/issues/new?assignees=&labels=%E7%8B%AC%E7%AB%8B%E6%8F%92%E4%BB%B6&projects=&template=submit-plugin.yml&title=%5BPlugin%5D%3A+%E8%AF%B7%E6%B1%82%E7%99%BB%E8%AE%B0%E6%96%B0%E6%8F%92%E4%BB%B6)，将您的插件提交到[插件列表](https://github.com/stars/RockChinQ/lists/qchatgpt-%E6%8F%92%E4%BB%B6)
 
+
 下方是给用户看的内容，按需修改
 -->
 
 ## 安装
 
-配置完成 [LangBot](https://github.com/RockChinQ/LangBot) 主程序后即可到插件管理页面安装  
-或查看详细的[插件安装说明](https://docs.langbot.app/plugin/plugin-intro.html#%E6%8F%92%E4%BB%B6%E7%94%A8%E6%B3%95)
+1. 完成 [LangBot](https://github.com/RockChinQ/LangBot) 主程序配置
+2. 到插件管理页面安装本插件  
+   → 或查看详细[插件安装说明](https://docs.langbot.app/zh/plugin/plugin-intro#%E5%AE%89%E8%A3%85)
 
-## 使用
+---
 
-<!-- 插件开发者自行填写插件使用说明 -->
+## 使用说明
+<!-- 插件开发者自行填写具体使用说明 -->
 
+---
 
-response_text的格式请使用如下json
+## `response_text` 格式规范
+
 ```json
 [
-  {"type": "Image", "url": "xxx"},
-  {"type": "Plain", "text": "xxx"},
-  {"type": "WeChatAppMsg", "app_msg": "xxx"},
+  {"type": "Image", "url": "必填：图片URL"},
+  {"type": "Plain", "text": "必填：纯文本内容"},
+  {"type": "WeChatAppMsg", "app_msg": "必填：微信App消息"}
 ]
 ```
+ ​其他消息类型，字段要求​（对齐 [message.py](https://github.com/RockChinQ/LangBot/blob/955b391253aaab686356efecac34c222299aa829/pkg/platform/types/message.py) 定义）
 
-其中列表元素的定义请对齐message定义, 填写必填字段
-https://github.com/RockChinQ/LangBot/blob/955b391253aaab686356efecac34c222299aa829/pkg/platform/types/message.py
+## 脚本优点
+- 当返回字段为json时，插件才会做转换处理。
+- 无需重复定义消息结构，使用langbot原生定义的message结构
+
+## 效果展示
+- Dify 工作流输出效果
+
+![image](https://github.com/user-attachments/assets/31ff0c34-779d-419c-9d50-e8aadf5fccc7)
+
+
+- Appmsg消息转发效果
+
+![image](https://github.com/user-attachments/assets/4bf37f30-9ff6-429a-a3e2-1f552423c3ac)
+
+
 
