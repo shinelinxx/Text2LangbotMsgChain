@@ -5,7 +5,7 @@ import json
 import inspect
 
 # 注册插件
-@register(name="Text2LangBotMsgChain", description="transfer text (eg. from dify) to message chain", version="0.1", author="shinelinxx")
+@register(name="Text2LangBotMsgChain", description="transfer text (eg. from dify) to message chain", version="0.1.0", author="shinelinxx")
 class Text2LangBotMsgChain(BasePlugin):
 
     # 插件加载时触发
