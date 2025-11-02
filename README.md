@@ -88,6 +88,17 @@
 - 如果 JSON 格式不正确或包含不支持的消息类型，会在日志中记录警告
 - 插件会忽略无效的消息组件，只处理有效的部分
 
+
+## 效果展示
+- Dify 工作流输出效果
+
+![image](https://github.com/user-attachments/assets/31ff0c34-779d-419c-9d50-e8aadf5fccc7)
+
+
+- Appmsg消息转发效果
+
+![image](https://github.com/user-attachments/assets/4bf37f30-9ff6-429a-a3e2-1f552423c3ac)
+
 ## 版本
 
 - 当前版本: 1.0.0

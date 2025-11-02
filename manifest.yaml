@@ -11,6 +11,7 @@ metadata:
   label:
     en_US: Text to Message Chain
     zh_Hans: 文本转消息链
+  icon: assets/icon.png
 spec:
   config: []
   components:
