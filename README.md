@@ -1,71 +1,99 @@
-# Text2LangbotMsgChain
+# Text2LangbotMsgChain 插件
 
-<!--
-## 插件开发者详阅
+将 JSON 格式的 LLM 响应转换为 LangBot 消息链。
 
-### 开始
+## 功能
 
-此仓库是 LangBot 插件模板，您可以直接在 GitHub 仓库中点击右上角的 "Use this template" 以创建你的插件。  
-接下来按照以下步骤修改模板代码：
+监听 `NormalMessageResponded` 事件，当 LLM 返回 JSON 格式的响应时，自动将其转换为 LangBot 消息链并发送。
 
-#### 修改模板代码
+## 使用方法
 
-- 修改此文档顶部插件名称信息
-- 将此文档下方的`<插件发布仓库地址>`改为你的插件在 GitHub 上的地址
-- 补充下方的`使用`章节内
-- 修改`main.py`中的`MyPlugin`类名为你的插件类名
-- 修改`manifest.yaml`中的信息
-- 将插件所需依赖库写到`requirements.txt`中
-- 根据[插件开发教程](https://docs.langbot.app/zh/plugin/dev/tutor.html)编写插件代码
-- 删除 README.md 中的注释内容
+### 1. 安装插件
 
+将插件目录放置在 LangBot 的插件目录中，然后通过 Web UI 启用插件。
 
-#### 发布插件
+### 2. 配置 LLM 返回 JSON 格式
 
-推荐将插件上传到 GitHub 代码仓库，以便用户通过下方方式安装。   
-欢迎[提issue](https://github.com/RockChinQ/LangBot/issues/new?assignees=&labels=%E7%8B%AC%E7%AB%8B%E6%8F%92%E4%BB%B6&projects=&template=submit-plugin.yml&title=%5BPlugin%5D%3A+%E8%AF%B7%E6%B1%82%E7%99%BB%E8%AE%B0%E6%96%B0%E6%8F%92%E4%BB%B6)，将您的插件提交到[插件列表](https://github.com/stars/RockChinQ/lists/qchatgpt-%E6%8F%92%E4%BB%B6)
+在 LLM 的 prompt 中添加指令，让其返回 JSON 格式的消息。例如：
 
+```
+请以 JSON 数组格式返回消息，每个元素包含 type 和对应的参数。
+支持的类型：Plain（文本）、Image（图片）、At（@某人）等。
 
-下方是给用户看的内容，按需修改
--->
+示例：
+[
+  {"type": "Plain", "text": "这是一条文本消息"},
+  {"type": "Image", "url": "https://example.com/image.jpg"}
+]
+```
 
-## 安装
-
-1. 完成 [LangBot](https://github.com/RockChinQ/LangBot) 主程序配置
-2. 到插件管理页面安装本插件  
-   → 或查看详细[插件安装说明](https://docs.langbot.app/zh/plugin/plugin-intro#%E5%AE%89%E8%A3%85)
-
----
-
-## 使用说明
-<!-- 插件开发者自行填写具体使用说明 -->
-
----
-
-## `response_text` 格式规范
+### 3. LLM 响应示例
 
 ```json
 [
-  {"type": "Image", "url": "必填：图片URL"},
-  {"type": "Plain", "text": "必填：纯文本内容"},
-  {"type": "WeChatAppMsg", "app_msg": "必填：微信App消息"}
+  {
+    "type": "Plain",
+    "text": "你好！这是一条文本消息"
+  },
+  {
+    "type": "Image",
+    "url": "https://example.com/image.jpg"
+  },
+  {
+    "type": "At",
+    "target": "123456"
+  },
+  {
+    "type": "Plain",
+    "text": " 你好！"
+  }
 ]
 ```
- ​其他消息类型，字段要求​（对齐 [message.py](https://github.com/RockChinQ/LangBot/blob/955b391253aaab686356efecac34c222299aa829/pkg/platform/types/message.py) 定义）
 
-## 脚本优点
-- 当返回字段为json时，插件才会做转换处理。
-- 无需重复定义消息结构，使用langbot原生定义的message结构
+## 支持的消息组件类型
 
-## 效果展示
-- Dify 工作流输出效果
+- `Plain` - 纯文本消息
+  - 参数：`text` (字符串)
+  
+- `Image` - 图片消息
+  - 参数：`url` (字符串)
+  
+- `At` - @指定成员
+  - 参数：`target` (用户ID)
+  
+- `AtAll` - @全体成员
+  - 参数：无
+  
+- `Voice` - 语音消息
+  - 参数：`url` (字符串)
+  
+- `File` - 文件消息
+  - 参数：`url` (字符串), `name` (文件名)
 
-![image](https://github.com/user-attachments/assets/31ff0c34-779d-419c-9d50-e8aadf5fccc7)
+更多组件类型请参考 LangBot 文档。
 
+## 工作原理
 
-- Appmsg消息转发效果
+1. 插件监听 `NormalMessageResponded` 事件
+2. 获取 LLM 的响应文本 `response_text`
+3. 尝试将响应文本解析为 JSON 数组
+4. 遍历数组，根据 `type` 字段创建对应的消息组件
+5. 将所有消息组件组合成 `MessageChain`
+6. 设置到 `event.reply_message_chain`
+7. 调用 `event_context.prevent_default()` 阻止默认行为
 
-![image](https://github.com/user-attachments/assets/4bf37f30-9ff6-429a-a3e2-1f552423c3ac)
+## 注意事项
 
+- 如果 LLM 返回的不是 JSON 格式，插件会自动跳过，使用默认的文本回复
+- 如果 JSON 格式不正确或包含不支持的消息类型，会在日志中记录警告
+- 插件会忽略无效的消息组件，只处理有效的部分
 
+## 版本
 
+- 当前版本: 1.0.0
+- 作者: shinelinxx
+- 仓库: https://github.com/shinelinxx/Text2LangbotMsgChain
+
+## 许可证
+
+MIT License
